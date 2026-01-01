@@ -82,8 +82,15 @@ st_start() {
 # 查看日志
 st_logs() {
     if [[ -f "$ST_DIR/st_output.log" ]]; then
-        echo -e "${BLUE}正在显示最后 20 行日志 (按 Ctrl+C 退出):${RESET}"
-        tail -f -n 20 "$ST_DIR/st_output.log"
+        while true; do
+            clear
+            echo -e "${BLUE}=== SillyTavern 日志 (最后 30 行) ===${RESET}"
+            tail -n 30 "$ST_DIR/st_output.log"
+            echo -e "\n${BLUE}========================================${RESET}"
+            echo -e "按 ${GREEN}Enter${RESET} 刷新日志，按 ${RED}0${RESET} 退出"
+            read -rsn1 key
+            if [[ "$key" == "0" ]]; then break; fi
+        done
     else
         warn "暂无日志文件"
         pause

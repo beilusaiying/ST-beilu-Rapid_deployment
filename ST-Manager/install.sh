@@ -85,7 +85,8 @@ install_project() {
     
     log "Installing files..."
     mkdir -p "$INSTALL_DIR"
-    cp -rf "$source_dir/"* "$INSTALL_DIR/"
+    # Copy all files including hidden ones (like .git)
+    cp -rf "$source_dir/." "$INSTALL_DIR/"
     
     # Restore config
     if [[ -f "$TEMP_DIR/settings.conf.bak" ]]; then
