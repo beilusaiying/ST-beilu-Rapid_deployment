@@ -99,8 +99,6 @@ ST-Manager/
 * **解决**: 使用 **查看日志** 功能检查具体报错。如果是端口占用，请尝试重启手机或手动杀掉 python 进程。
 
 ## 🔗 链接
-
-* **GitHub 仓库**: [https://github.com/beilusaiying/ST-beilu-Rapid_deployment](https://github.com/beilusaiying/ST-beilu-Rapid_deployment) (求 Star ⭐️)
 * **Discord 粉丝群**: [https://discord.gg/agHeDq9bqU](https://discord.gg/agHeDq9bqU)
 
 ## 🙏 致谢 (Acknowledgments)
