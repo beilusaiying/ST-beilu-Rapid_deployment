@@ -120,18 +120,27 @@ install_project() {
             cd "$APP_DIR" || exit 1
             git pull || warn "更新失败，请检查网络"
         else
-            warn "目录 $APP_DIR 已存在但不是 Git 仓库，跳过更新"
+            warn "目录 $APP_DIR 已存在但不是 Git 仓库，正在强制重新安装..."
+            rm -rf "$APP_DIR"
+            git clone "$REPO_URL" "$APP_DIR" || err "克隆失败，请检查网络"
         fi
     else
         log "正在克隆仓库..."
         git clone "$REPO_URL" "$APP_DIR" || err "克隆失败，请检查网络"
-        
-        # 智能修正目录结构 (防止 ST-Manager/ST-Manager 嵌套)
-        if [[ -d "$APP_DIR/ST-Manager" ]]; then
-            log "检测到嵌套目录，正在修正结构..."
-            mv "$APP_DIR/ST-Manager/"* "$APP_DIR/"
-            rmdir "$APP_DIR/ST-Manager"
-        fi
+    fi
+
+    # 统一修正目录结构 (防止 ST-Manager/ST-Manager 嵌套)
+    # 无论是新克隆还是更新，都检查是否存在嵌套
+    if [[ -d "$APP_DIR/ST-Manager" ]]; then
+        log "检测到嵌套目录，正在修正结构..."
+        # 使用 cp -rf 强制覆盖/合并，避免 mv 在目标目录存在时产生嵌套 (如 manager/manager)
+        cp -rf "$APP_DIR/ST-Manager/"* "$APP_DIR/"
+        rm -rf "$APP_DIR/ST-Manager"
+    fi
+    
+    # 最终检查核心文件是否存在
+    if [[ ! -f "$MANAGER_DIR/core.sh" ]]; then
+        err "核心文件缺失 ($MANAGER_DIR/core.sh)，安装可能失败。请尝试运行: rm -rf ~/ST-Manager 然后重试。"
     fi
 }
 
@@ -163,6 +172,17 @@ main() {
     echo -e "${YELLOW}bash $MANAGER_DIR/core.sh${RESET}"
     echo -e "${BLUE}==============================================${RESET}"
     
+    # 询问是否开启自启动
+    read -rp "是否设置开机(打开Termux)自启动? (y/n): " enable_autostart
+    if [[ "$enable_autostart" == "y" || "$enable_autostart" == "Y" ]]; then
+        if ! grep -q "bash $MANAGER_DIR/core.sh" "$HOME/.bashrc"; then
+            echo "bash $MANAGER_DIR/core.sh" >> "$HOME/.bashrc"
+            success "已开启自启动"
+        else
+            warn "自启动已存在，跳过"
+        fi
+    fi
+
     # 询问是否立即启动
     read -rp "是否立即启动? (y/n): " start_now
     if [[ "$start_now" == "y" || "$start_now" == "Y" ]]; then

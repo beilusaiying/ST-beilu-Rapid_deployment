@@ -118,12 +118,20 @@ main_menu() {
         echo -e "  ${GREEN}9)${RESET} 查看日志"
         
         echo -e "${BLUE}[系统管理]${RESET}"
-        echo -e "  ${GREEN}10)${RESET} 修复运行环境 (重装依赖)"
-        echo -e "  ${GREEN}11)${RESET} 更新管理工具 (ST-Manager)"
+        
+        # 检查自启动状态
+        local autostart_status="${RED}关闭${RESET}"
+        if grep -q "bash $DIR/core.sh" "$HOME/.bashrc"; then
+            autostart_status="${GREEN}开启${RESET}"
+        fi
+        
+        echo -e "  ${GREEN}10)${RESET} 开机自启设置 [$autostart_status]"
+        echo -e "  ${GREEN}11)${RESET} 修复运行环境 (重装依赖)"
+        echo -e "  ${GREEN}12)${RESET} 更新管理工具 (ST-Manager)"
         echo -e "  ${GREEN}0)${RESET} 退出"
         
         echo -e "${BLUE}==============================================${RESET}"
-        read -rp "请选择操作 [0-11]: " choice
+        read -rp "请选择操作 [0-12]: " choice
         
         case "$choice" in
             1) check_func st_start && st_start ;;
@@ -135,12 +143,30 @@ main_menu() {
             7) check_func gcli_start && gcli_start ;;
             8) check_func gcli_stop && gcli_stop ;;
             9) check_func gcli_logs && gcli_logs ;;
-            10) fix_env ;;
-            11) update_self ;;
+            10) toggle_autostart ;;
+            11) fix_env ;;
+            12) update_self ;;
             0) exit 0 ;;
             *) echo -e "${RED}无效选项${RESET}"; sleep 1 ;;
         esac
     done
+}
+
+# 切换自启动
+toggle_autostart() {
+    local bashrc="$HOME/.bashrc"
+    local start_cmd="bash $DIR/core.sh"
+    
+    if grep -q "$start_cmd" "$bashrc"; then
+        # 已开启，执行关闭
+        sed -i "\|$start_cmd|d" "$bashrc"
+        success "已关闭开机自启"
+    else
+        # 未开启，执行开启
+        echo "$start_cmd" >> "$bashrc"
+        success "已开启开机自启"
+    fi
+    pause
 }
 
 # 修复环境
