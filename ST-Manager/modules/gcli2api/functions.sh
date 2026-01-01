@@ -31,28 +31,21 @@ gcli_status_text() {
 
 # 安装
 gcli_install() {
-    echo -e "${BLUE}开始安装 gcli2api...${RESET}"
+    echo -e "${BLUE}开始安装/更新 gcli2api...${RESET}"
     
-    # 检查 Python 环境
-    if ! command -v python &>/dev/null; then
-        echo -e "${YELLOW}未检测到 Python，正在安装...${RESET}"
-        pkg install python -y
-    fi
-
-    if [[ -d "$GCLI_DIR" ]]; then
-        echo -e "${YELLOW}检测到旧版本，正在更新...${RESET}"
-        cd "$GCLI_DIR" || return
-        git pull
+    local install_script="$HOME/gcli2api-install.sh"
+    local target_url="https://raw.githubusercontent.com/su-kaka/gcli2api/master/termux-install.sh"
+    
+    echo -e "${YELLOW}正在下载官方安装脚本...${RESET}"
+    if curl -fL "$target_url" -o "$install_script"; then
+        chmod +x "$install_script"
+        echo -e "${BLUE}执行安装脚本...${RESET}"
+        bash "$install_script"
+        rm -f "$install_script"
+        success "安装/更新完成"
     else
-        echo -e "${BLUE}克隆仓库...${RESET}"
-        git clone https://github.com/su-kaka/gcli2api "$GCLI_DIR"
+        err "下载安装脚本失败，请检查网络"
     fi
-
-    cd "$GCLI_DIR" || return
-    echo -e "${BLUE}安装 Python 依赖...${RESET}"
-    pip install -r requirements.txt
-    
-    success "安装完成"
     pause
 }
 
@@ -73,10 +66,17 @@ gcli_start() {
     echo -e "${GREEN}正在启动 gcli2api...${RESET}"
     cd "$GCLI_DIR" || return
     
-    # 后台运行并记录日志
-    nohup python run.py > gcli.log 2>&1 &
+    if [[ -f "termux-start.sh" ]]; then
+        chmod +x termux-start.sh
+        # 后台运行
+        nohup bash termux-start.sh > gcli.log 2>&1 &
+    else
+        err "未找到启动脚本 termux-start.sh"
+        pause
+        return
+    fi
     
-    sleep 2
+    sleep 5
     if is_gcli_running; then
         success "启动成功！日志已输出到 $GCLI_DIR/gcli.log"
         echo -e "${BLUE}========================================${RESET}"

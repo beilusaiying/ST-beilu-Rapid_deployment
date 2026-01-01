@@ -53,20 +53,41 @@ st_start() {
         st_install
     fi
 
-    echo -e "${GREEN}正在启动 SillyTavern...${RESET}"
-    echo -e "${YELLOW}提示: 按 Ctrl+C 可停止运行并返回${RESET}"
+    echo -e "${GREEN}正在启动 SillyTavern (后台运行)...${RESET}"
     
-    # 尝试打开浏览器
-    if command -v termux-open-url &>/dev/null; then
-        termux-open-url "http://127.0.0.1:8000"
-    elif command -v xdg-open &>/dev/null; then
-        xdg-open "http://127.0.0.1:8000" &>/dev/null
-    fi
-
     cd "$ST_DIR" || return
-    # 增加内存限制防止 OOM
-    node --max-old-space-size=4096 server.js
+    
+    # 后台运行
+    nohup node --max-old-space-size=4096 server.js > st_output.log 2>&1 &
+    
+    # 等待几秒检查是否启动成功
+    sleep 3
+    if is_st_running; then
+        success "SillyTavern 已在后台启动"
+        echo -e "日志文件: $ST_DIR/st_output.log"
+        
+        # 尝试打开浏览器
+        if command -v termux-open-url &>/dev/null; then
+            termux-open-url "http://127.0.0.1:8000"
+        elif command -v xdg-open &>/dev/null; then
+            xdg-open "http://127.0.0.1:8000" &>/dev/null
+        fi
+    else
+        err "启动失败，请查看日志"
+        cat st_output.log
+    fi
     pause
+}
+
+# 查看日志
+st_logs() {
+    if [[ -f "$ST_DIR/st_output.log" ]]; then
+        echo -e "${BLUE}正在显示最后 20 行日志 (按 Ctrl+C 退出):${RESET}"
+        tail -f -n 20 "$ST_DIR/st_output.log"
+    else
+        warn "暂无日志文件"
+        pause
+    fi
 }
 
 # 停止

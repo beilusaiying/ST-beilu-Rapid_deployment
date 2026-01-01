@@ -97,6 +97,14 @@ install_project() {
     # Permissions
     chmod +x "$INSTALL_DIR/core.sh"
     find "$INSTALL_DIR/modules" -name "*.sh" -exec chmod +x {} \;
+
+    # Create global command
+    if [[ -d "$PREFIX/bin" ]]; then
+        log "Creating global command 'st-menu'..."
+        echo "#!/bin/bash" > "$PREFIX/bin/st-menu"
+        echo "bash $INSTALL_DIR/core.sh" >> "$PREFIX/bin/st-menu"
+        chmod +x "$PREFIX/bin/st-menu"
+    fi
 }
 
 setup_autostart() {
@@ -119,7 +127,7 @@ main() {
     
     echo -e "${BLUE}============================${RESET}"
     success "Installation Complete!"
-    echo -e "Run: ${YELLOW}bash $INSTALL_DIR/core.sh${RESET}"
+    echo -e "Run: ${YELLOW}st-menu${RESET} (or bash $INSTALL_DIR/core.sh)"
     
     setup_autostart
     
