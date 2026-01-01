@@ -47,7 +47,7 @@ chmod +x install.sh && ./install.sh
 安装完成后，可以通过以下命令随时启动管理菜单：
 
 ```bash
-bash ~/ST-Manager/manager/core.sh
+bash ~/ST-Manager/core.sh
 ```
 
 ## 📖 使用指南
