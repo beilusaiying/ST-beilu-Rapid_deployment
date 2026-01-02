@@ -19,7 +19,12 @@ is_st_running() {
             return 0
         fi
     fi
-    pgrep -f "node server.js" > /dev/null
+    # Match server.js with any arguments (e.g. --max-old-space-size)
+    if command -v pgrep &>/dev/null; then
+        pgrep -f "server.js" > /dev/null
+    else
+        ps -ef 2>/dev/null | grep "server.js" | grep -v grep > /dev/null
+    fi
 }
 
 # 状态显示文本

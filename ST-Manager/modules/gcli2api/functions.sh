@@ -21,7 +21,11 @@ is_gcli_running() {
         fi
     fi
     # 备用检查
-    pgrep -f "python.*web\.py" > /dev/null
+    if command -v pgrep &>/dev/null; then
+        pgrep -f "python.*web\.py" > /dev/null
+    else
+        ps -ef 2>/dev/null | grep "web.py" | grep -v grep > /dev/null
+    fi
 }
 
 # 状态显示

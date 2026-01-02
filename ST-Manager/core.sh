@@ -171,7 +171,13 @@ fix_env() {
     echo -e "${YELLOW}正在重新安装依赖...${RESET}"
     if [[ "$PREFIX" == *"/com.termux"* ]]; then
         pkg update -y
-        pkg install -y curl unzip git nodejs-lts jq expect python openssl-tool
+        pkg install -y curl unzip git nodejs-lts jq expect python openssl-tool procps
+        
+        # Install PM2 if missing
+        if ! command -v pm2 &>/dev/null; then
+            echo -e "${YELLOW}正在安装 PM2 进程管理器...${RESET}"
+            npm install -g pm2
+        fi
     else
         warn "非 Termux 环境，跳过 pkg 安装。"
     fi
