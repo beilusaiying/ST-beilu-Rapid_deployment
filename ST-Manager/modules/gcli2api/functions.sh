@@ -6,6 +6,8 @@ GCLI_DIR="$HOME/gcli2api"
 get_gcli_version() {
     if [[ -d "$GCLI_DIR/.git" ]]; then
         cd "$GCLI_DIR" && git rev-parse --short HEAD
+    elif [[ -f "$GCLI_DIR/web.py" ]]; then
+        echo "已安装"
     else
         echo "未安装"
     fi
