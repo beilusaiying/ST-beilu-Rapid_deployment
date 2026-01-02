@@ -293,9 +293,10 @@ show_group_menu() {
         echo -e "${BLUE}=== $group_name ===${RESET}"
         
         # Status Check (Context aware)
-        if [[ "$group_name" == "SillyTavern 管理" ]]; then
+        local module_name="${GROUP_TO_MODULE_MAP[$group_name]}"
+        if [[ "$module_name" == "sillytavern" ]]; then
             if declare -f st_status_text > /dev/null; then st_status_text; fi
-        elif [[ "$group_name" == "gcli2api 管理" ]]; then
+        elif [[ "$module_name" == "gcli2api" ]]; then
             if declare -f gcli_status_text > /dev/null; then gcli_status_text; fi
         fi
         echo -e "${BLUE}----------------------------------------------${RESET}"

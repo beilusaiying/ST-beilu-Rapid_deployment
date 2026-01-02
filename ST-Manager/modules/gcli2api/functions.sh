@@ -15,7 +15,8 @@ get_gcli_version() {
 is_gcli_running() {
     # 优先检查 pm2
     if command -v pm2 &>/dev/null; then
-        if pm2 list | grep -q "web.*online"; then
+        # Use --no-color to avoid escape codes interfering with grep
+        if pm2 list --no-color | grep -q "web.*online"; then
             return 0
         fi
     fi
